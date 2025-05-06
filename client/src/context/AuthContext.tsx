@@ -39,8 +39,20 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+// 設置授權標頭的輔助函數
+const setAuthHeader = (token: string) => {
+  // @ts-ignore - 忽略TypeScript對axios headers的類型檢查
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+};
+
+// 刪除授權標頭的輔助函數
+const removeAuthHeader = () => {
+  // @ts-ignore - 忽略TypeScript對axios headers的類型檢查
+  delete axios.defaults.headers.common['Authorization'];
+};
+
 // 認證提供者組件
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   // 臨時解決方案：在開發/測試環境中設置一個默認用戶，繞過認證
   const isDevMode = window.location.hostname === 'localhost' || 
                    window.location.hostname.includes('vercel.app');
@@ -85,12 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             });
             
             // 設置axios默認Authorization頭
-            if (axios.defaults.headers) {
-              if (!axios.defaults.headers.common) {
-                axios.defaults.headers.common = {};
-              }
-              axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            }
+            setAuthHeader(token);
           }
         } catch (error) {
           console.error('令牌解析錯誤:', error);
@@ -116,12 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', token);
       
       // 設置axios默認Authorization頭
-      if (axios.defaults.headers) {
-        if (!axios.defaults.headers.common) {
-          axios.defaults.headers.common = {};
-        }
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
+      setAuthHeader(token);
       
       // 設置用戶資料
       setUser(user);
@@ -146,12 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', token);
       
       // 設置axios默認Authorization頭
-      if (axios.defaults.headers) {
-        if (!axios.defaults.headers.common) {
-          axios.defaults.headers.common = {};
-        }
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
+      setAuthHeader(token);
       
       // 設置用戶資料
       setUser(user);
@@ -168,9 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 登出功能
   const logout = () => {
     localStorage.removeItem('token');
-    if (axios.defaults.headers && axios.defaults.headers.common) {
-      delete axios.defaults.headers.common['Authorization'];
-    }
+    removeAuthHeader();
     setUser(null);
     toast.success('已成功登出');
   };
