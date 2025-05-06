@@ -5,9 +5,13 @@
  * @tailwind components;
  * @tailwind utilities;
  */
+
+/* stylelint-disable */
+/* 這些指令是Tailwind CSS特有的，非標準CSS，但在構建時會被處理 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable */
 
 @layer base {
   html {
