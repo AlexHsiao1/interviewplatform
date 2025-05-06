@@ -164,7 +164,7 @@ const DesignSystemPage = () => {
       <section className="section">
         <h2>表單元素</h2>
         <div className="mt-4 max-w-xl">
-          <Form onSubmit={(e) => console.log('表單提交', e)}>
+          <Form onSubmit={(e: React.FormEvent<HTMLFormElement>) => console.log('表單提交', e)}>
             <div className="space-y-4">
               <Input
                 label="標準輸入框"

@@ -1,3 +1,10 @@
+/* 
+ * 這個文件使用Tailwind CSS語法
+ * 忽略編輯器對@tailwind和@apply等指令的警告
+ * @tailwind base;
+ * @tailwind components;
+ * @tailwind utilities;
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
