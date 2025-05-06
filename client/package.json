@@ -33,7 +33,7 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "npx vite build",
+    "build": "node node_modules/vite/bin/vite.js build",
     "lint": "eslint src --ext ts,tsx",
     "preview": "vite preview"
   },
