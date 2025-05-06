@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React from 'react';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { toast } from 'react-hot-toast';
@@ -32,11 +32,11 @@ interface AuthContextType {
 }
 
 // 創建認證上下文
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = React.createContext<AuthContextType | null>(null);
 
 // 認證提供者屬性類型
 interface AuthProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 // 認證提供者組件
@@ -45,17 +45,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isDevMode = window.location.hostname === 'localhost' || 
                    window.location.hostname.includes('vercel.app');
   
-  const [user, setUser] = useState<User | null>(isDevMode ? {
+  const [user, setUser] = React.useState<User | null>(isDevMode ? {
     id: 'dev-user',
     username: 'Demo User',
     email: 'demo@example.com',
     points: 100,
     role: 'user'
   } : null);
-  const [isLoading, setIsLoading] = useState(!isDevMode);
+  const [isLoading, setIsLoading] = React.useState(!isDevMode);
 
   // 檢查存儲的令牌並設置用戶
-  useEffect(() => {
+  React.useEffect(() => {
     const checkAuth = async () => {
       // 如果是開發環境，跳過認證
       if (isDevMode) {
@@ -85,7 +85,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             });
             
             // 設置axios默認Authorization頭
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            if (axios.defaults.headers) {
+              if (!axios.defaults.headers.common) {
+                axios.defaults.headers.common = {};
+              }
+              axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            }
           }
         } catch (error) {
           console.error('令牌解析錯誤:', error);
@@ -111,7 +116,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', token);
       
       // 設置axios默認Authorization頭
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      if (axios.defaults.headers) {
+        if (!axios.defaults.headers.common) {
+          axios.defaults.headers.common = {};
+        }
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
       
       // 設置用戶資料
       setUser(user);
@@ -136,7 +146,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', token);
       
       // 設置axios默認Authorization頭
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      if (axios.defaults.headers) {
+        if (!axios.defaults.headers.common) {
+          axios.defaults.headers.common = {};
+        }
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
       
       // 設置用戶資料
       setUser(user);
@@ -153,7 +168,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 登出功能
   const logout = () => {
     localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
+    if (axios.defaults.headers && axios.defaults.headers.common) {
+      delete axios.defaults.headers.common['Authorization'];
+    }
     setUser(null);
     toast.success('已成功登出');
   };
@@ -168,7 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 // 自定義鉤子以使用認證上下文
 export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
   
   if (!context) {
     throw new Error('useAuth必須在AuthProvider內部使用');
