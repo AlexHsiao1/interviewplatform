@@ -1,8 +1,25 @@
 import axios from 'axios';
 
+// 根據環境設置API基礎URL
+const getApiBaseUrl = () => {
+  // 開發環境下使用本地API
+  if (window.location.hostname === 'localhost') {
+    return '/api';
+  }
+  
+  // Vercel部署環境下使用外部API或模擬數據
+  if (window.location.hostname.includes('vercel.app')) {
+    // 臨時禁用API請求
+    return '/mock-api'; // 這將導致請求404，從而不會嘗試實際API調用
+  }
+  
+  // 生產環境
+  return '/api';
+};
+
 // 創建API請求實例
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,6 +28,12 @@ const api = axios.create({
 // 添加請求攔截器設置令牌
 api.interceptors.request.use(
   (config) => {
+    // 在Vercel上禁用API請求
+    if (window.location.hostname.includes('vercel.app')) {
+      console.log('在預覽環境中模擬API請求:', config.url);
+      // 可選：在這裡阻止請求
+    }
+    
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
